@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>عید الفطر مبارک | Eid Mubarak</title>
+    
+    <!-- Google Fonts for Urdu Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables - Matching User's Image Palette */
+        :root {
+            --primary-gold: #eedc9a;
+            --dark-gold: #cfa858;
+            --sky-top: #0e264c;
+            --sky-mid: #1b4076;
+            --sky-bottom: #437ab8;
+            --text-white: #fdfdfc;
+            --silhouette: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--sky-top);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; 
+        }
+
+        /* -------------------------------------
+           Intro Screen (Touch to Start)
+        -------------------------------------- */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-top), var(--sky-mid));
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .touch-icon {
+            width: 60px; height: 60px;
+            border: 2px solid var(--primary-gold);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 20px;
+            animation: pulseRing 1.5s infinite;
+        }
+
+        .touch-icon::after {
+            content: '';
+            width: 30px; height: 30px;
+            background-color: var(--primary-gold);
+            border-radius: 50%;
+            animation: pulseDot 1.5s infinite;
+        }
+
+        .intro-text {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            color: var(--primary-gold);
+            text-align: center;
+            padding: 0 20px;
+            line-height: 2;
+        }
+
+        /* -------------------------------------
+           Loading Screen (5 Seconds Animation)
+        -------------------------------------- */
+        .loading-content {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, var(--sky-top), var(--sky-mid));
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+
+        .loading-title {
+            font-family: 'Aref Ruqaa', serif;
+            font-size: clamp(3.5rem, 12vw, 6rem);
+            color: var(--primary-gold);
+            margin-bottom: 10px;
+            opacity: 0; filter: blur(15px); transform: scale(0.85);
+        }
+
+        .loading-subtitle {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: var(--text-white);
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        .music-anim {
+            display: flex; gap: 5px; align-items: flex-end;
+            height: 30px; margin-top: 30px;
+        }
+        .bar {
+            width: 4px; background-color: var(--primary-gold);
+            border-radius: 2px; transform-origin: bottom; transform: scaleY(0.1);
+        }
+
+        /* Twinkling Background Stars for Loading */
+        #particles {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: -1;
+        }
+        .particle {
+            position: absolute; background: #ffffff;
+            border-radius: 50%; opacity: 0;
+            box-shadow: 0 0 5px #fff;
+        }
+
+        /* -------------------------------------
+           Book Opening Animation 
+        -------------------------------------- */
+        .book-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            perspective: 2000px; z-index: 50; pointer-events: none; 
+        }
+
+        .page {
+            position: absolute; top: 0; width: 50vw; height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-top), var(--sky-mid));
+            z-index: 51;
+            transition: transform 2.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .left-page { left: 0; transform-origin: left center; }
+        .right-page { right: 0; transform-origin: right center; }
+
+        .left-page.open { transform: rotateY(-110deg); box-shadow: inset -30px 0 60px rgba(0,0,0,0.5); }
+        .right-page.open { transform: rotateY(110deg); box-shadow: inset 30px 0 60px rgba(0,0,0,0.5); }
+
+        /* -------------------------------------
+           Main Content - Night Sky & Scenery
+        -------------------------------------- */
+        .main-content {
+            position: relative;
+            width: 100%; min-height: 100vh;
+            z-index: 10;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%);
+            overflow-y: auto; overflow-x: hidden;
+            padding: 40px 20px;
+        }
+
+        /* Glowing Moon */
+        .scenery-moon {
+            position: absolute;
+            bottom: 15%; /* Sits beautifully behind the mosques */
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(250px, 60vw, 400px);
+            aspect-ratio: 1;
+            background: radial-gradient(circle, #ffffff 60%, #f4f7fb 90%, #dbe4f0 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.6),
+                        0 0 120px 50px rgba(255, 255, 255, 0.3),
+                        0 0 200px 80px rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        /* Complex Starry Sky Details */
+        .scenery-stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 10% 20%, white, transparent),
+                radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 50% 10%, white, transparent),
+                radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1.5px 1.5px at 90% 50%, white, transparent),
+                radial-gradient(1px 1px at 20% 70%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 80% 80%, white, transparent);
+            background-size: 250px 250px;
+            z-index: 0;
+        }
+
+        /* Shining 4-point Stars */
+        .cross-star {
+            position: absolute; width: 2px; height: 2px;
+            background: white; box-shadow: 0 0 8px 2px white; z-index: 0;
+        }
+        .cross-star::before, .cross-star::after {
+            content: ''; position: absolute; background: white; border-radius: 50%;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
+        }
+        .cross-star::before { width: 14px; height: 1px; }
+        .cross-star::after { width: 1px; height: 14px; }
+
+        /* Mosque Silhouette */
+        .scenery-city {
+            position: absolute; bottom: -2px; left: 0; width: 100%; height: 35vh;
+            min-height: 250px; z-index: 2;
+        }
+        .scenery-city svg {
+            width: 100%; height: 100%;
+        }
+
+        /* -------------------------------------
+           Glassmorphism Greeting Card
+        -------------------------------------- */
+        .greeting-card {
+            position: relative; z-index: 10; /* Above sky, moon and city */
+            max-width: 650px; width: 100%;
+            background: rgba(10, 25, 50, 0.45); /* Elegant translucent glass */
+            padding: 40px 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .main-title {
+            font-family: 'Aref Ruqaa', serif;
+            font-size: clamp(2.2rem, 8vw, 4rem);
+            color: var(--primary-gold);
+            margin-bottom: 5px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .divider {
+            color: var(--dark-gold); font-size: 1.5rem;
+            margin: 15px 0 25px 0; letter-spacing: 12px; opacity: 0.8;
+        }
+
+        .message-body { display: flex; flex-direction: column; gap: 15px; }
+
+        .message-body p {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: clamp(1rem, 4.5vw, 1.4rem);
+            color: var(--text-white);
+            line-height: 2.2; margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        footer {
+            margin-top: 40px; font-family: 'Arial', sans-serif;
+            font-size: 0.85rem; color: rgba(255,255,255,0.6); text-align: center;
+        }
+
+        /* Animations */
+        .run-writing { animation: writingEffect 3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        .run-fadein { animation: fadeInSub 2s ease-out 1.5s forwards; }
+        .run-equalizer { animation: equalizer 0.8s infinite alternate ease-in-out; }
+        .run-particle { animation: floatParticle linear forwards; }
+
+        @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(238, 220, 154, 0.6); } 70% { box-shadow: 0 0 0 20px rgba(238, 220, 154, 0); } 100% { box-shadow: 0 0 0 0 rgba(238, 220, 154, 0); } }
+        @keyframes pulseDot { 0% { transform: scale(0.8); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.8; } }
+        @keyframes writingEffect { 0% { opacity: 0; filter: blur(15px); transform: scale(0.85); } 50% { opacity: 1; filter: blur(2px); transform: scale(1.02); } 100% { opacity: 1; filter: blur(0); transform: scale(1); text-shadow: 0 0 20px rgba(238, 220, 154, 0.6), 0 0 40px rgba(238, 220, 154, 0.2); } }
+        @keyframes fadeInSub { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatParticle { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 0.9; transform: translateY(-30px) scale(1); } 80% { opacity: 0.9; transform: translateY(-100px) scale(1); } 100% { transform: translateY(-130px) scale(0.5); opacity: 0; } }
+        @keyframes equalizer { 0% { transform: scaleY(0.2); } 100% { transform: scaleY(1); } }
+    </style>
+</head>
+<body>
+
+    <!-- YAHAN APNA SONG ADD KAREIN -->
+    <audio id="bg-audio" preload="auto">
+        <!-- Default nasheed given for testing, replace with yours -->
+        <source src="audio.wav" type="audio/mpeg">
+    </audio>
+
+    <!-- Intro Screen (Mandatory for AutoPlay Audio) -->
+    <div id="intro-screen">
+        <div class="touch-icon"></div>
+        <p class="intro-text">عید کا پیغام دیکھنے کے لیے<br>اسکرین پر ٹچ کریں</p>
+    </div>
+
+    <!-- Loading Animation (Runs for 5 seconds) -->
+    <div class="loading-content" id="loadingContent">
+        <div id="particles"></div>
+        <h1 class="loading-title" id="loadingTitle">عید مبارک</h1>
+        <p class="loading-subtitle" id="loadingSubtitle">خوشیوں اور رحمتوں بھری عید</p>
+        
+        <!-- Music Visualizer -->
+        <div class="music-anim" id="musicAnim">
+            <div class="bar" style="animation-delay: 0.1s; height: 15px;"></div>
+            <div class="bar" style="animation-delay: 0.3s; height: 30px;"></div>
+            <div class="bar" style="animation-delay: 0.0s; height: 20px;"></div>
+            <div class="bar" style="animation-delay: 0.4s; height: 25px;"></div>
+            <div class="bar" style="animation-delay: 0.2s; height: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Book Covers -->
+    <div class="book-container">
+        <div class="page left-page" id="leftPage"></div>
+        <div class="page right-page" id="rightPage"></div>
+    </div>
+
+    <!-- Main Greeting Message with Night Sky & Mosque -->
+    <main class="main-content">
+        
+        <!-- Background Artistic Elements -->
+        <div class="scenery-stars"></div>
+        
+        <!-- Cross Stars like the image -->
+        <div class="cross-star" style="top: 15%; left: 35%;"></div>
+        <div class="cross-star" style="top: 25%; left: 60%; transform: scale(0.7);"></div>
+        <div class="cross-star" style="top: 10%; left: 75%; transform: scale(1.2);"></div>
+        <div class="cross-star" style="top: 40%; left: 20%; transform: scale(0.8);"></div>
+        
+        <!-- The Moon -->
+        <div class="scenery-moon"></div>
+
+        <!-- The Mosque Silhouette (Created purely in HTML/SVG for perfect rendering) -->
+        <div class="scenery-city">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -50 1100 350" preserveAspectRatio="none">
+                <!-- Mosque Silhouette Shape -->
+                <path fill="#000000" d="M 0 300 L 1100 300 L 1100 200 L 1000 200 L 960 200 L 960 120 L 965 120 L 965 110 L 960 110 L 960 90 L 950 70 L 940 90 L 940 110 L 945 110 L 945 120 L 940 120 L 940 200 L 850 200 L 850 160 C 850 130, 820 110, 810 95 C 805 85, 800 65, 800 65 C 800 65, 795 85, 790 95 C 780 110, 750 130, 750 160 L 750 200 L 710 200 L 710 100 L 715 100 L 715 85 L 710 85 L 710 60 L 700 30 L 690 60 L 690 85 L 695 85 L 695 100 L 690 100 L 690 200 L 650 200 L 650 150 C 650 100, 600 80, 580 60 C 570 50, 550 10, 550 10 C 550 10, 530 50, 520 60 C 500 80, 450 100, 450 150 L 450 200 L 410 200 L 410 100 L 415 100 L 415 85 L 410 85 L 410 60 L 400 30 L 390 60 L 390 85 L 395 85 L 395 100 L 390 100 L 390 200 L 350 200 L 350 160 C 350 130, 320 110, 310 95 C 305 85, 300 65, 300 65 C 300 65, 295 85, 290 95 C 280 110, 250 130, 250 160 L 250 200 L 160 200 L 160 120 L 165 120 L 165 110 L 160 110 L 160 90 L 150 70 L 140 90 L 140 110 L 145 110 L 145 120 L 140 120 L 140 200 L 0 200 Z" />
+                
+                <!-- Main Crescent & Pole -->
+                <path fill="#000000" d="M 550 -15 C 565 -15, 575 -5, 575 10 C 575 25, 565 35, 550 35 C 560 25, 560 -5, 550 -15 Z" />
+                <rect x="548" y="35" width="4" height="25" fill="#000000" />
+                
+                <!-- Small Poles on Side Domes -->
+                <rect x="298" y="55" width="4" height="10" fill="#000000" />
+                <rect x="798" y="55" width="4" height="10" fill="#000000" />
+            </svg>
+        </div>
+
+        <!-- The Greeting Card -->
+        <div class="greeting-card">
+            <h1 class="main-title">عید الفطر مبارک</h1>
+            <div class="divider">✧ ✦ ✧</div>
+            
+            <div class="message-body">
+                <p>اللہ تعالیٰ آپ کی زندگی کو خوشیوں، برکتوں اور کامیابیوں سے بھر دے۔</p>
+                <p>میری دعا ہے کہ یہ عید آپ کے گھر والوں کے لیے ڈھیروں محبت، دل کا سکون اور اللہ کی خاص رحمت کا پیغام لے کر آئے۔</p>
+                <p>رمضان المبارک میں آپ نے جو عبادتیں کیں اللہ ان کو قبول فرمائے اور آنے والا ہر دن آپ کے لیے نئی آسانیاں اور خوشیاں لے کر آئے۔</p>
+                <p>اللہ پاک آپ کو ہمیشہ صحت، خوشحالی اور ایمان کی دولت سے نوازے۔</p>
+                <p>آپ کو اور آپ کے تمام پیاروں کو میری طرف سے عید الفطر کی بہت بہت مبارک باد۔</p>
+            </div>
+
+            <footer>
+                Design and idea by: <strong>Muzammil Ali</strong>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const introScreen = document.getElementById('intro-screen');
+            const audio = document.getElementById('bg-audio');
+            const loadingContent = document.getElementById('loadingContent');
+            const leftPage = document.getElementById('leftPage');
+            const rightPage = document.getElementById('rightPage');
+            const particlesContainer = document.getElementById('particles');
+            const bars = document.querySelectorAll('.bar');
+
+            // Generate Twinkling Stars for Loading Screen
+            for(let i = 0; i < 40; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                let size = Math.random() * 2 + 1; 
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = (Math.random() * 60 + 40) + 'vh'; 
+                p.style.animationDuration = (Math.random() * 3 + 2.5) + 's';
+                p.style.animationDelay = (Math.random() * 2) + 's';
+                particlesContainer.appendChild(p);
+            }
+
+            // Start Experience on Touch
+            introScreen.addEventListener('click', () => {
+                
+                // 1. Play Audio
+                audio.volume = 1;
+                audio.play();
+
+                // 2. Hide Intro Screen
+                introScreen.style.opacity = '0';
+                setTimeout(() => {
+                    introScreen.style.visibility = 'hidden';
+                    introScreen.style.display = 'none';
+                }, 800);
+
+                // 3. Show Loading & Start Animations
+                loadingContent.style.visibility = 'visible';
+                loadingContent.style.opacity = '1';
+                
+                document.getElementById('loadingTitle').classList.add('run-writing');
+                document.getElementById('loadingSubtitle').classList.add('run-fadein');
+                bars.forEach(bar => bar.classList.add('run-equalizer'));
+                document.querySelectorAll('.particle').forEach(p => p.classList.add('run-particle'));
+
+                // 4. Timeline
+                // At 4.5 seconds -> Fade out audio & animations
+                setTimeout(() => {
+                    loadingContent.style.opacity = '0';
+                    
+                    let fadeAudio = setInterval(() => {
+                        if (audio.volume > 0.05) {
+                            audio.volume -= 0.05;
+                        } else {
+                            audio.pause(); // Music strictly stops here
+                            clearInterval(fadeAudio);
+                        }
+                    }, 50);
+
+                }, 4500);
+
+                // At 5.0 seconds -> Open the Book
+                setTimeout(() => {
+                    leftPage.classList.add('open');
+                    rightPage.classList.add('open');
+                    document.body.style.overflow = 'auto'; // Enable scrolling
+                    
+                    setTimeout(() => {
+                        loadingContent.style.display = 'none';
+                    }, 1000);
+                }, 5000);
+
+            });
+        });
+    </script>
+</body>
+</html>
